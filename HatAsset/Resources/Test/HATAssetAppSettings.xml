@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<AdaptationData>
+  <Adaptation AdaptationID="Game difficulty - Player skill">
+    <Game GameID="TileZero">
+      <ScenarioData>
+        <Scenario ScenarioID="Very Easy AI">
+          <Rating>1.2</Rating>
+          <PlayCount>100</PlayCount>
+          <KFactor>0.0075</KFactor>
+          <Uncertainty>0.01</Uncertainty>
+          <LastPlayed>2016-03-14T12:59:59</LastPlayed>
+          <TimeLimit>900000</TimeLimit>
+        </Scenario>
+        <Scenario ScenarioID="Easy AI">
+          <Rating>1.4</Rating>
+          <PlayCount>100</PlayCount>
+          <KFactor>0.0075</KFactor>
+          <Uncertainty>0.01</Uncertainty>
+          <LastPlayed>2016-03-14T12:59:59</LastPlayed>
+          <TimeLimit>900000</TimeLimit>
+        </Scenario>
+        <Scenario ScenarioID="Medium Color AI">
+          <Rating>1.6</Rating>
+          <PlayCount>100</PlayCount>
+          <KFactor>0.0075</KFactor>
+          <Uncertainty>0.01</Uncertainty>
+          <LastPlayed>2016-03-14T12:59:59</LastPlayed>
+          <TimeLimit>900000</TimeLimit>
+        </Scenario>
+        <Scenario ScenarioID="Medium Shape AI">
+          <Rating>1.8</Rating>
+          <PlayCount>100</PlayCount>
+          <KFactor>0.0075</KFactor>
+          <Uncertainty>0.01</Uncertainty>
+          <LastPlayed>2016-03-14T12:59:59</LastPlayed>
+          <TimeLimit>900000</TimeLimit>
+        </Scenario>
+        <Scenario ScenarioID="Hard AI">
+          <Rating>6</Rating>
+          <PlayCount>100</PlayCount>
+          <KFactor>0.0075</KFactor>
+          <Uncertainty>0.01</Uncertainty>
+          <LastPlayed>2016-03-14T12:59:59</LastPlayed>
+          <TimeLimit>900000</TimeLimit>
+        </Scenario>
+        <Scenario ScenarioID="Very Hard AI">
+          <Rating>10</Rating>
+          <PlayCount>100</PlayCount>
+          <KFactor>0.0075</KFactor>
+          <Uncertainty>0.01</Uncertainty>
+          <LastPlayed>2016-03-14T12:59:59</LastPlayed>
+          <TimeLimit>900000</TimeLimit>
+        </Scenario>
+      </ScenarioData>
+      <PlayerData>
+        <Player PlayerID="Noob">
+          <Rating>5.5</Rating>
+          <PlayCount>100</PlayCount>
+          <KFactor>0.0075</KFactor>
+          <Uncertainty>0.01</Uncertainty>
+          <LastPlayed>2016-03-14T12:59:59</LastPlayed>
+        </Player>
+      </PlayerData>
+    </Game>
+  </Adaptation>
+</AdaptationData>

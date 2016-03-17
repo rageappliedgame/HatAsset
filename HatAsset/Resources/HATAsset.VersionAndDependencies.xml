@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<version>
+  <id>HATAsset</id>
+  <major>0</major>
+  <minor>9</minor>
+  <build>0</build>
+  <revision>0</revision>
+  <maturity>alpha</maturity>
+  <dependencies />
+</version>
