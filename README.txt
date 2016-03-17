@@ -18,3 +18,7 @@ Additionally I have included the AssetManager.zip. This archive includes AssetMa
 Use this package only if current version of the AssetManager (https://github.com/rageappliedgame/AssetManager) is not compatible with the HAT asset.
 
 For managing XML data files and visualizing/analyzing data, refer to the accompanying widget (https://github.com/rageappliedgame/HATWidget).
+
+Refer to the software design document (https://rage.ou.nl/filedepot?fid=501) for more implementation and integration details.
+Refer to the asset use case description (https://rage.ou.nl/filedepot?fid=502) for HAT asset application notes.
+Refer to the manual (https://rage.ou.nl/filedepot?fid=503) on the accompanying widget for data management and analysis/visualization.
