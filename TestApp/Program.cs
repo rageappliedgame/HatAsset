@@ -198,7 +198,7 @@ namespace TestApp
         // [SC] path to "HATAssetAppSettings.xml" and "gameplaylogs.xml" files
         // [SC] these XML files are for running this test only and contain dummy data
         // [SC] to use the HAT asset with your game, use XML files at 'HatAsset\HatAsset\Resources\'
-        const string DatafilePath = @"C:\OU\RAGE\Assets\Learning\Asset\assetV1.0\HatAsset\HatAsset\Resources\test\";
+        const string DatafilePath = @".\Resources";
 
         public MyBridge() {}
 

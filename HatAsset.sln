@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HatAsset", "HatAsset\HatAsset.csproj", "{98F44FAD-87FB-4666-888F-32FDC5EDC6B5}"
 EndProject
@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.
 		{DA8E9056-2E52-4029-81EB-A2D167614C47} = {DA8E9056-2E52-4029-81EB-A2D167614C47}
 		{98F44FAD-87FB-4666-888F-32FDC5EDC6B5} = {98F44FAD-87FB-4666-888F-32FDC5EDC6B5}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HATAsset_Portable", "HATAsset_Portable\HATAsset_Portable.csproj", "{A441FEE9-482A-418E-B046-795B2233B910}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,22 @@ Global
 		{00392BAD-664A-4D93-A444-C09C3AE2F6E3}.Release|ARM.ActiveCfg = Release|Any CPU
 		{00392BAD-664A-4D93-A444-C09C3AE2F6E3}.Release|x64.ActiveCfg = Release|Any CPU
 		{00392BAD-664A-4D93-A444-C09C3AE2F6E3}.Release|x86.ActiveCfg = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|ARM.Build.0 = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|x64.Build.0 = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Debug|x86.Build.0 = Debug|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|ARM.ActiveCfg = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|ARM.Build.0 = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|x64.ActiveCfg = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|x64.Build.0 = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|x86.ActiveCfg = Release|Any CPU
+		{A441FEE9-482A-418E-B046-795B2233B910}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

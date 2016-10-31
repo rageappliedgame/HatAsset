@@ -3,3 +3,10 @@
 ################################################################################
 
 /.vs/Supercharger/HATAsset_Portable
+/HatAsset/bin/Debug
+/HatAsset/obj/Debug
+/.vs/HatAsset/v14
+/HATAsset_Portable/obj/Debug
+/TestApp/bin/Debug
+/TestApp/obj/Debug
+/.vs/Supercharger/TestApp

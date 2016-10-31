@@ -53,6 +53,17 @@
       <Name>HatAsset</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="..\HatAsset\Resources\Test\gameplaylogs.xml">
+      <Link>Resources\gameplaylogs.xml</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HatAsset\Resources\Test\HATAssetAppSettings.xml">
+      <Link>Resources\HATAssetAppSettings.xml</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
