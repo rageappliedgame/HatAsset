@@ -71,7 +71,7 @@ namespace HAT
     using System.Reflection;
     using System.Text;
     using System.Xml.Serialization;
-
+    using AssetManagerPackage;
     using AssetPackage;
 
     // using Swiss;
