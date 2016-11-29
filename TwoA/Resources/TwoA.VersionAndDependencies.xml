@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<version>
+  <id>TwoA</id>
+  <major>1</major>
+  <minor>1</minor>
+  <build>0</build>
+  <revision>0</revision>
+  <maturity>alpha</maturity>
+  <dependencies />
+</version>
