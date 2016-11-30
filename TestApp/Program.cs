@@ -79,7 +79,7 @@ namespace TestApp
 
             // [SC] third optional step is to create an expanded knowledge structure by identifying additional knowledge states
             KStructure ksExpand = ksg.createKStructure(ro);
-            ksExpand = ksg.createExpandedKStructure(ksExpand);
+            ksg.createExpandedKStructure(ksExpand);
 
             //////////////////////////////////////////////////////////////////////////////////////////////
             // [SC] note that KStructure object can be serialized into an XML format
