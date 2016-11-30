@@ -1,4 +1,4 @@
-﻿#region Header
+#region Header
 
 /*
 Copyright 2016 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
@@ -192,26 +192,26 @@ namespace TwoA
         /// <param name="ks">Knowledge structure to be expanded with new states.</param>
         /// 
         /// <returns>Expanded knowledge structure</returns>
-        public KStructure createExpandedKStructure(KStructure ks) {
+        public void createExpandedKStructure(KStructure ks) {
             // Implements Rule 2:  Given a set GR of problems with a rank R and a set GR-1 of problems with rank R-1, 
             // a union of any subset of GR with any knowledge state KR-1 containing at least one problem from GR-1 is a state.
 
             // [SC] make sure the knowledge structure object is not null
             if (ks == null) {
-                Log(Severity.Error, "createExpandedKStructure: KStructure object is null. Returning null.");
-                return null;
+                Log(Severity.Error, "createExpandedKStructure: KStructure object is null. Returning from method.");
+                return;
             }
 
             // [SC] make sure the rank order of categories is available
             if (!ks.hasRankOrder()) {
-                Log(Severity.Error, "createExpandedKStructure: KStructure object contains no rank order. Returning null.");
-                return null;
+                Log(Severity.Error, "createExpandedKStructure: KStructure object contains no rank order. Returning from method.");
+                return;
             }
 
             // [SC] make sure the knowledge structure has ranks
             if (!ks.hasRanks()) {
-                Log(Severity.Error, "createExpandedKStructure: KStructure object contains no ranks with states. Returning null.");
-                return null;
+                Log(Severity.Error, "createExpandedKStructure: KStructure object contains no ranks with states. Returning from method.");
+                return;
             }
 
             Rank prevRank = null;
@@ -288,8 +288,6 @@ namespace TwoA
 
                 prevRank = rank;
             }
-
-            return ks;
         }
         
         /// <summary>
