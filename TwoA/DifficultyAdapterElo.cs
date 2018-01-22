@@ -1,7 +1,7 @@
 ﻿#region Header
 
 /*
-Copyright 2017 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
+Copyright 2018 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Namespace: TwoA
+Namespace: TwoANS
 Filename: DifficultyAdapterElo.cs
 Description:
     [TODO]
@@ -25,10 +25,22 @@ Description:
 // Change history:
 // [2017.02.09]
 //      - [SC] first created
+// [2017.12.19]
+//      - [SC] changed the namespace from TwoA to TwoANS
+//      - [SC] changed the access modifier for DifficultyAdapterElo class to public from internal
+//      - [SC] changed the access modifiers for Type and Description properties to public from internal
+// [2017.12.20]
+//      - [SC] changed the Type property to static
+//      - [SC] changed the Description property to static
+// [2018.01.17]
+//      - [SC] added a calibration phase that affect calculation of the K factors to speed up rating convergence during first few games
+//      - [SC] added a region "const, fields, and properties for the calibration phase"
+//      - [SC] modified calcThetaKFctr and calcBetaKFctr methods
+//
 
 #endregion Header
 
-namespace TwoA 
+namespace TwoANS 
 {
     using System;
     using System.Collections.Generic;
@@ -37,21 +49,24 @@ namespace TwoA
 
     using AssetPackage;
 
-    internal class DifficultyAdapterElo : BaseAdapter 
+    /// <summary>
+    /// Performs assessment and adaptation based on player's accuracy only. 
+    /// </summary>
+    public class DifficultyAdapterElo : BaseAdapter 
     {
         #region Consts, Fields, Properties
 
         /// <summary>
         /// Gets the type of the adapter
         /// </summary>
-        internal new string Type {
+        public new static string Type {
             get { return "SkillDifficultyElo"; }
         }
 
         /// <summary>
         /// Description of this adapter
         /// </summary>
-        internal new string Description {
+        public new static string Description {
             get { 
                 return "Adapts game difficulty to player skill. Skill ratings are evaluated for individual players. "
                 + "Requires player accuracy (value within [0, 1]) observations. Uses the Elo equation for expected score estimation." ;
@@ -358,6 +373,168 @@ namespace TwoA
         //////////////////////////////////////////////////////////////////////////////////////
 
         //////////////////////////////////////////////////////////////////////////////////////
+        ////// START: const, fields, and properties for the calibration phase
+        #region const, fields, and properties for the calibration phase
+
+        // [SC] The default value for the length (number of gameplays) of player's calibration
+        private const int DEF_PLAYER_CAL_LENGTH = 30;
+        // [SC] The default value for the length (number of gameplays) of scenario's calibration
+        private const int DEF_SCENARIO_CAL_LENGTH = 30;
+        // [SC] The default K factor for player's calibration
+        private const double DEF_PLAYER_CAL_K = 0.1;
+        // [SC] The default K factor for scenario's calibration
+        private const double DEF_SCENARIO_CAL_K = 0.1;
+
+        private int playerCalLength = DifficultyAdapterElo.DEF_PLAYER_CAL_LENGTH;
+        private int scenarioCalLength = DifficultyAdapterElo.DEF_SCENARIO_CAL_LENGTH;
+        private double playerCalK = DifficultyAdapterElo.DEF_PLAYER_CAL_K;
+        private double scenarioCalK = DifficultyAdapterElo.DEF_SCENARIO_CAL_K;
+
+        /// <summary>
+        /// Gets or sets the player's calibration length.
+        /// </summary>
+        internal int PlayerCalLength {
+            get { return this.playerCalLength; }
+            set {
+                if (value < 0) {
+                    log(AssetPackage.Severity.Warning,
+                        String.Format("In DifficultyAdapter.PlayerCalLength: The calibration length '{0}' should be equal to or higher than 0.", value));
+                }
+                else {
+                    this.playerCalLength = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets player calibration length to its default value.
+        /// </summary>
+        internal void setDefaultPlayerCalLength() {
+            this.PlayerCalLength = DifficultyAdapterElo.DEF_PLAYER_CAL_LENGTH;
+        }
+
+        /// <summary>
+        /// Gets or sets the scenario's calibration length.
+        /// </summary>
+        internal int ScenarioCalLength {
+            get { return this.scenarioCalLength; }
+            set {
+                if (value < 0) {
+                    log(AssetPackage.Severity.Warning,
+                        String.Format("In DifficultyAdapter.ScenarioCalLength: The calibration length '{0}' should be equal to or higher than 0.", value));
+                }
+                else {
+                    this.scenarioCalLength = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets scenario calibration length to its default value.
+        /// </summary>
+        internal void setDefaultScenarioCalLength() {
+            this.ScenarioCalLength = DifficultyAdapterElo.DEF_SCENARIO_CAL_LENGTH;
+        }
+
+        /// <summary>
+        /// Sets the scenario and player calibration length to the same value
+        /// </summary>
+        internal int CalLength {
+            set {
+                if (value < 0) {
+                    log(AssetPackage.Severity.Warning,
+                        String.Format("In DifficultyAdapter.CalLength: The calibration length '{0}' should be equal to or higher than 0.", value));
+                }
+                else {
+                    this.PlayerCalLength = value;
+                    this.ScenarioCalLength = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets scenario and player calibration lengths to its default values.
+        /// </summary>
+        internal void setDefaultCalLength() {
+            this.PlayerCalLength = DifficultyAdapterElo.DEF_PLAYER_CAL_LENGTH;
+            this.ScenarioCalLength = DifficultyAdapterElo.DEF_SCENARIO_CAL_LENGTH;
+        }
+
+        /// <summary>
+        /// Gets or sets the player calibration K factor.
+        /// </summary>
+        internal double PlayerCalK {
+            get { return this.playerCalK; }
+            set {
+                if (value <= 0) {
+                    log(AssetPackage.Severity.Warning,
+                        String.Format("In DifficultyAdapter.PlayerCalK: The calibration K factor '{0}' cannot be 0 or a negative number.", value));
+                }
+                else {
+                    this.playerCalK = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets player calibration K factor to its default value.
+        /// </summary>
+        internal void setDefaultPlayerCalK() {
+            this.PlayerCalK = DifficultyAdapterElo.DEF_PLAYER_CAL_K;
+        }
+
+        /// <summary>
+        /// Gets or sets the scenario calibration K factor.
+        /// </summary>
+        internal double ScenarioCalK {
+            get { return this.scenarioCalK; }
+            set {
+                if (value <= 0) {
+                    log(AssetPackage.Severity.Warning,
+                        String.Format("In DifficultyAdapter.ScenarioCalK: The calibration K factor '{0}' cannot be 0 or a negative number.", value));
+                }
+                else {
+                    this.scenarioCalK = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets scenario calibration K factor to its default value.
+        /// </summary>
+        internal void setDefaultScenarioCalK() {
+            this.ScenarioCalK = DifficultyAdapterElo.DEF_SCENARIO_CAL_K;
+        }
+
+        /// <summary>
+        /// Sets the player and scenario calibration K factors to the same value.
+        /// </summary>
+        internal double CalK {
+            set {
+                if (value <= 0) {
+                    log(AssetPackage.Severity.Warning,
+                        String.Format("In DifficultyAdapter.CalK: The calibration K factor '{0}' cannot be 0 or a negative number.", value));
+                }
+                else {
+                    this.PlayerCalK = value;
+                    this.ScenarioCalK = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sets scenario and player calibration K factors to its default values.
+        /// </summary>
+        internal void setDefaultCalK() {
+            this.PlayerCalK = DifficultyAdapterElo.DEF_PLAYER_CAL_K;
+            this.ScenarioCalK = DifficultyAdapterElo.DEF_SCENARIO_CAL_K;
+        }
+
+        #endregion const, fields, and properties for the calibration phase
+        ////// END: const, fields, and properties for the calibration phase
+        //////////////////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////////////////
         ////// START: const, fields, and properties for calculating expected score
         #region const, fields, and properties for calculating expected score
 
@@ -521,7 +698,7 @@ namespace TwoA
             }
             else {
                 // [SC] calculating player K factors
-                playerNewKFct = calcThetaKFctr(playerNewUncertainty, scenarioNewUncertainty);
+                playerNewKFct = calcThetaKFctr(playerNewUncertainty, scenarioNewUncertainty, playerPlayCount);
             }
 
             if (customScenarioKfct > 0) {
@@ -529,7 +706,7 @@ namespace TwoA
             }
             else {
                 // [SC] calculating scenario K factor
-                scenarioNewKFct = calcBetaKFctr(playerNewUncertainty, scenarioNewUncertainty);
+                scenarioNewKFct = calcBetaKFctr(playerNewUncertainty, scenarioNewUncertainty, scenarioPlayCount);
             }
 
             // [SC] calculating player and scenario ratings
@@ -557,7 +734,7 @@ namespace TwoA
             }
 
             // [SC] creating game log
-            this.asset.CreateNewRecord(this.Type, playerNode.GameID, playerNode.PlayerID, scenarioNode.ScenarioID
+            this.asset.CreateNewRecord(DifficultyAdapterElo.Type, playerNode.GameID, playerNode.PlayerID, scenarioNode.ScenarioID
                 , 0, correctAnswer, playerNewRating, scenarioNewRating, currDateTime);
 
             return true;
@@ -746,7 +923,7 @@ namespace TwoA
             }
             randNums[3] = rndNum;
 
-            // [SC] tralsating probability bounds of a fuzzy interval into a beta values
+            // [SC] translating probability bounds of a fuzzy interval into a beta values
             double lowerLimitBeta = theta + Math.Log((1 - randNums[3]) / randNums[3]);
             double minBeta = theta + Math.Log((1 - randNums[2]) / randNums[2]); // [SC][2016.10.07] a modified version of the equation from the original data; better suits the data
             double maxBeta = theta + Math.Log((1 - randNums[1]) / randNums[1]);
@@ -783,7 +960,7 @@ namespace TwoA
         /// <returns>
         /// expected score as a double.
         /// </returns>
-        internal double calcExpectedScore(double playerTheta, double itemBeta) {
+        internal double calcExpectedScore(double playerTheta, double itemBeta) {            
             double expFctr = (double)Math.Pow(this.ExpectScoreMagnifier, (itemBeta - playerTheta)/this.MagnifierStepSize);
 
             return 1.0d / (1.0d + expFctr);
@@ -855,24 +1032,42 @@ namespace TwoA
         /// Calculates a new K factor for theta rating
         /// </summary>
         ///
-        /// <param name="currThetaU">   current uncertainty for the theta rating</param>
-        /// <param name="currBetaU">    current uncertainty for the beta rating</param>
+        /// <param name="currThetaU">           current uncertainty for the theta rating</param>
+        /// <param name="currBetaU">            current uncertainty for the beta rating</param>
+        /// <param name="playerPlayCount">      a number of past games played by the player</param>
         /// 
         /// <returns>a double value of a new K factor for the theta rating</returns>
-        internal double calcThetaKFctr(double currThetaU, double currBetaU) {
-            return this.KConst * (1.0d + (this.KUp * currThetaU) - (this.KDown * currBetaU));
+        internal double calcThetaKFctr(double currThetaU, double currBetaU, double playerPlayCount) {
+            // [SC] calculate K based on uncertainty
+            double playerK = this.KConst * (1.0d + (this.KUp * currThetaU) - (this.KDown * currBetaU));
+
+            // [SC] check if the player is in calibration phase
+            if (this.PlayerCalLength > playerPlayCount) {
+                playerK += this.PlayerCalK;
+            }
+
+            return playerK;
         }
 
         /// <summary>
         /// Calculates a new K factor for the beta rating
         /// </summary>
         /// 
-        /// <param name="currThetaU">   current uncertainty fot the theta rating</param>
-        /// <param name="currBetaU">    current uncertainty for the beta rating</param>
+        /// <param name="currThetaU">           current uncertainty fot the theta rating</param>
+        /// <param name="currBetaU">            current uncertainty for the beta rating</param>
+        /// <param name="scenarioPlayCount">    a number of past games played with this scenario</param>
         /// 
         /// <returns>a double value of a new K factor for the beta rating</returns>
-        internal double calcBetaKFctr(double currThetaU, double currBetaU) {
-            return this.KConst * (1.0d + (this.KUp * currBetaU) - (this.KDown * currThetaU));
+        internal double calcBetaKFctr(double currThetaU, double currBetaU, double scenarioPlayCount) {
+            // [SC] calculate K based on uncertainty
+            double scenarioK = this.KConst * (1.0d + (this.KUp * currBetaU) - (this.KDown * currThetaU));
+
+            // [SC] check if the scenario is in calibration phase
+            if (this.ScenarioCalLength > scenarioPlayCount) {
+                scenarioK += this.ScenarioCalK;
+            }
+
+            return scenarioK;
         }
 
         #endregion functions for calculating k factors

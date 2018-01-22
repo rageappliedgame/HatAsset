@@ -42,6 +42,12 @@ Filename: Program.cs
 // [2017.02.14]
 //      - [SC] added 'testAdaptationAndAssessmentElo' method
 //
+//
+
+// [TODO] need to change the program
+// [TODO] add scenario and player methods in TwoA should return nodes or null instead of boolean 
+// [TODO] add log show flag params in scenario and player getters
+
 
 #endregion Header
 
@@ -57,36 +63,33 @@ namespace TestApp
     using System.Diagnostics;
 
     // [SC] Load TwoA and Rage architecture
-    using TwoA;
+    using TwoANS;
     using AssetPackage;
 
-    class Program
-    {
-        static void Main (string[] args) {
-            
+    class Program {
+        static void Main(string[] args) {
             // [SC] demo of usage of the adaptation module that requires player accuracy and response time measurements
             // [SC] player accuracy should be either 0 (fail) or 1 (success), and response time should be measured in milliseconds
-            demoAdaptationAndAssessment();
-            
-            printMsg("############################################################################");
+            //demoAdaptationAndAssessment();
 
             // [SC] demo of usage of the adaptation module that requires player accuracy only
             // [SC] player accuracy can be any value between 0 and 1
+            //printMsg("############################################################################");
             demoAdaptationAndAssessmentElo();
+
+            // [SC] test universal score estimation based on player's accuracy and response time
+            //printMsg("############################################################################");
+            //testScoreCalculations();
 
             // [SC] test generation of a graph of dependencies among game scenarios based on their difficulties
             //printMsg("############################################################################");
-            testKnowledgeSpaceGeneration();
-            
-            // [SC] test universal score estimation based on player's accuracy and response time
-            //printMsg("############################################################################");
-            testScoreCalculations();
-            
+            //testKnowledgeSpaceGeneration();
+
             Console.ReadKey();
         }
 
         static void demoAdaptationAndAssessment() {
-            string adaptID = "Game difficulty - Player skill";
+            string adaptID = DifficultyAdapter.Type;
             string gameID = "TileZero";
             string playerID = "Noob";           // [SC] using this player as an example
             string scenarioID = "Hard AI";      // [SC] using this scenario as an example
@@ -105,10 +108,7 @@ namespace TestApp
 
             // [SC] Adding scenario data, Case 1
             twoA.AddScenario(
-                new ScenarioNode {
-                    AdaptationID = adaptID,
-                    GameID = gameID,
-                    ScenarioID = "Very Easy AI",
+                new ScenarioNode (adaptID, gameID, "Very Easy AI") {
                     Rating = 1.2,
                     PlayCount = 100,
                     KFactor = 0.0075,
@@ -136,17 +136,14 @@ namespace TestApp
 
             // [SC] Adding scenario data, Case 5: directly accessing the List structure
             twoA.scenarios.Add(
-                new ScenarioNode {
-                    AdaptationID = adaptID,
-                    GameID = gameID,
-                    ScenarioID = scenarioID,    // [SC] Hard AI
+                new ScenarioNode (adaptID, gameID, scenarioID) { // [SC] Hard AI  
                     Rating = 6,
                     PlayCount = 100,
                     KFactor = 0.0075,
                     Uncertainty = 0.01,
                     LastPlayed = lastPlayed,
                     TimeLimit = 900000
-                }    
+                }
             );
 
             // [SC] Adding scenario data, Case 6
@@ -173,10 +170,7 @@ namespace TestApp
 
             // [SC] adding a new player node
             twoA.AddPlayer(
-                new PlayerNode {
-                    AdaptationID = adaptID,
-                    GameID = gameID,
-                    PlayerID = playerID,
+                new PlayerNode (adaptID, gameID, playerID) {
                     Rating = 5.5,
                     PlayCount = 100,
                     KFactor = 0.0075,
@@ -239,7 +233,6 @@ namespace TestApp
             twoA.SetTargetDistribution(adaptID, 0.1, 0.05, 0.01, 0.35);
             printMsg(String.Format("Recommended difficulty rating {0} for player rating {1} and success rate {2}."
                     , twoA.TargetDifficultyRating(playerNode), playerNode.Rating, twoA.GetTargetDistribution(adaptID)[0]));
-            twoA.TargetDifficultyRating(playerNode);
 
             #endregion Demo for requesting a recommended difficulty rating
 
@@ -310,7 +303,7 @@ namespace TestApp
             //    LastPlayed: 2012-12-31T11:59:59
             //    TimeLimit: 900000
             //
-            ////Example player parameters: 
+            //Example player parameters: 
             //    PlayerID: Noob
             //    Rating: 5.5
             //    PlayCount: 100
@@ -413,7 +406,7 @@ namespace TestApp
         }
 
         static void demoAdaptationAndAssessmentElo() {
-            string adaptID = "SkillDifficultyElo"; // [SC] Make sure to change the adaptation ID
+            string adaptID = DifficultyAdapterElo.Type; // [SC] Make sure to change the adaptation ID
             string gameID = "TileZero";
             string playerID = "Noob";           // [SC] using this player as an example
             string scenarioID = "Hard AI";      // [SC] using this scenario as an example
@@ -432,10 +425,7 @@ namespace TestApp
 
             // [SC] Adding scenario data, Case 1
             twoA.AddScenario(
-                new ScenarioNode {
-                    AdaptationID = adaptID,
-                    GameID = gameID,
-                    ScenarioID = "Very Easy AI",
+                new ScenarioNode (adaptID, gameID, "Very Easy AI") {
                     Rating = 1.2,
                     PlayCount = 100,
                     KFactor = 0.0075,
@@ -463,10 +453,7 @@ namespace TestApp
 
             // [SC] Adding scenario data, Case 5: directly accessing the List structure
             twoA.scenarios.Add(
-                new ScenarioNode {
-                    AdaptationID = adaptID,
-                    GameID = gameID,
-                    ScenarioID = scenarioID,    // [SC] Hard AI
+                new ScenarioNode (adaptID, gameID, scenarioID) { // [SC] Hard AI   
                     Rating = 6,
                     PlayCount = 100,
                     KFactor = 0.0075,
@@ -500,10 +487,7 @@ namespace TestApp
 
             // [SC] adding a new player node
             twoA.AddPlayer(
-                new PlayerNode {
-                    AdaptationID = adaptID,
-                    GameID = gameID,
-                    PlayerID = playerID,
+                new PlayerNode (adaptID, gameID, playerID) {
                     Rating = 5.5,
                     PlayCount = 100,
                     KFactor = 0.0075,
@@ -652,16 +636,16 @@ namespace TestApp
             //    LastPlayed: 2012-12-31T11:59:59
             //
             //Ask 10 times for a recommended scenarios for the player Noob; P = 0.75:  
+            //    Medium Color AI
             //    Hard AI
             //    Hard AI
             //    Hard AI
             //    Hard AI
+            //    Very Easy AI
+            //    Easy AI
             //    Hard AI
             //    Hard AI
-            //    Hard AI
-            //    Medium Shape AI
-            //    Hard AI
-            //    Hard AI
+            //    Medium Color AI
             //
             //Ask 10 times for a recommended scenarios for the player Noob; P = 0.5: 
             //    Very Hard AI
@@ -678,102 +662,104 @@ namespace TestApp
             // Recommended difficulty rating 4.40138771133189 for player rating 5.5 and success rate 0.75.
             // Recommended difficulty rating 7.69722457733622 for player rating 5.5 and success rate 0.1.
             //
-            //1st simulated gameplay. Player's accuracy is 1.0. Expected accuracy is 0.499280442655187. Player rating increases and scenario rating decreases: 
+            //1st simulated gameplay. Player's accuracy is 1.0. Expected accuracy is 0.377540051684686. Player rating increases and scenario rating decreases: 
             //    PlayerID: Noob
-            //    Rating: 5.51670212673468
+            //    Rating: 5.52076292965099
             //    PlayCount: 101
             //    KFactor: 0.03335625
             //    Uncertainty: 0.985
-            //    LastPlayed: 2017-03-23T01:05:17
+            //    LastPlayed: 2017-11-06T09:17:40
             //
             //    ScenarioID: Hard AI
-            //    Rating: 5.98329787326532
+            //    Rating: 5.97923707034901
             //    PlayCount: 101
             //    KFactor: 0.03335625
             //    Uncertainty: 0.985
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //    TimeLimit: 900000
             //
-            //2nd simulated gameplay. Player's accuracy is 0.75. Expected accuracy is 0.49932851514718. Player rating increases and scenario rating decreases: 
+            //2nd simulated gameplay. Player's accuracy is 0.75. Expected accuracy is 0.387347291047703. Player rating increases and scenario rating decreases: 
             //    PlayerID: Noob
-            //    Rating: 5.52489908428937
+            //    Rating: 5.53262167323373
             //    PlayCount: 102
             //    KFactor: 0.0327
             //    Uncertainty: 0.96
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //
             //    ScenarioID: Hard AI
-            //    Rating: 5.97510091571063
+            //    Rating: 5.96737832676627
             //    PlayCount: 102
             //    KFactor: 0.0327
             //    Uncertainty: 0.96
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //    TimeLimit: 900000
             //
-            //3rd simulated gameplay. Player's accuracy is 0.5. Expected accuracy is 0.499352107846448. Player rating increases slightly and scenario rating decreases slightly: 
+            //3rd simulated gameplay. Player's accuracy is 0.5. Expected accuracy is 0.39299051581039. Player rating increases slightly and scenario rating decreases slightly: 
             //    PlayerID: Noob
-            //    Rating: 5.52491984518357
+            //    Rating: 5.53605065839273
             //    PlayCount: 103
             //    KFactor: 0.03204375
             //    Uncertainty: 0.935
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //
             //    ScenarioID: Hard AI
-            //    Rating: 5.97508015481643
+            //    Rating: 5.96394934160727
             //    PlayCount: 103
             //    KFactor: 0.03204375
             //    Uncertainty: 0.935
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //    TimeLimit: 900000
             //
-            //4th simulated gameplay. Player's accuracy is 0.25. Expected accuracy is 0.499352167601005. Player rating decreass and scenario rating increases: 
+            //4th simulated gameplay. Player's accuracy is 0.25. Expected accuracy is 0.394627681212804. Player rating decreass and scenario rating increases: 
             //    PlayerID: Noob
-            //    Rating: 5.51709330402299
+            //    Rating: 5.53151115704867
             //    PlayCount: 104
             //    KFactor: 0.0313875
             //    Uncertainty: 0.91
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //
             //    ScenarioID: Hard AI
-            //    Rating: 5.98290669597701
+            //    Rating: 5.96848884295133
             //    PlayCount: 104
             //    KFactor: 0.0313875
             //    Uncertainty: 0.91
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //    TimeLimit: 900000
             //
-            //5th simulated gameplay. Player's accuracy is 0.0. Expected accuracy is 0.499329641043894. Player rating decreass and scenario rating increases: 
+            //5th simulated gameplay. Player's accuracy is 0.0. Expected accuracy is 0.392460814156309. Player rating decreass and scenario rating increases: 
             //    PlayerID: Noob
-            //    Rating: 5.50174827999166
+            //    Rating: 5.51945034565363
             //    PlayCount: 105
             //    KFactor: 0.03073125
             //    Uncertainty: 0.885
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //
             //    ScenarioID: Hard AI
-            //    Rating: 5.99825172000834
+            //    Rating: 5.98054965434637
             //    PlayCount: 105
             //    KFactor: 0.03073125
             //    Uncertainty: 0.885
-            //    LastPlayed: 2017-03-23T01:18:06
+            //    LastPlayed: 2017-11-06T09:17:40
             //    TimeLimit: 900000
             //
             //6th simulated gameplay. Using custom K factor to scale rating changes. Player rating increases and scenario rating decreases: 
             //    Player ID: Noob.
-            //    Rating: 5.50928851934309.
+            //    Rating: 5.53037585645568.
             //    K factor: 0.030075.
             //
             //    Player ID (custom K factor): Noob.
-            //    Rating: 5.75246280539251.
+            //    Rating: 5.88272585029387.
             //    K factor: 1.
             //
             //    ScenarioID: Hard AI.
-            //    Rating: 5.99071148065691.
+            //    Rating: 5.96962414354432.
             //    K factor: 0.030075.
             //
             //    ScenarioID (custom K factor): Hard AI.
-            //    Rating: 5.74753719460749.
+            //    Rating: 5.61727414970613.
             //    K factor: 1.
+            //
+
             #endregion example output
         }
 
@@ -904,36 +890,36 @@ namespace TestApp
             //Rank 1
             //    Current state: (a); State type: core; State ID: S1.1
             //        Prev state: ()
-            //        Next state: (a,c)
             //        Next state: (a,b)
+            //        Next state: (a,c)
             //Rank 2
-            //    Current state: (a,c); State type: core; State ID: S2.1
+            //    Current state: (a,b); State type: core; State ID: S2.1
             //        Prev state: (a)
             //        Next state: (a,b,c)
-            //    Current state: (a,b); State type: core; State ID: S2.2
+            //    Current state: (a,c); State type: core; State ID: S2.2
             //        Prev state: (a)
             //        Next state: (a,b,c)
             //Rank 3
             //    Current state: (a,b,c); State type: core; State ID: S3.1
-            //        Prev state: (a,c)
             //        Prev state: (a,b)
+            //        Prev state: (a,c)
             //        Next state: (a,b,c,d)
             //Rank 4
             //    Current state: (a,b,c,d); State type: core; State ID: S4.1
             //        Prev state: (a,b,c)
-            //        Next state: (a,b,c,d,f)
             //        Next state: (a,b,c,d,e)
+            //        Next state: (a,b,c,d,f)
             //Rank 5
-            //    Current state: (a,b,c,d,f); State type: core; State ID: S5.1
+            //    Current state: (a,b,c,d,e); State type: core; State ID: S5.1
             //        Prev state: (a,b,c,d)
             //        Next state: (a,b,c,d,e,f)
-            //    Current state: (a,b,c,d,e); State type: core; State ID: S5.2
+            //    Current state: (a,b,c,d,f); State type: core; State ID: S5.2
             //        Prev state: (a,b,c,d)
             //        Next state: (a,b,c,d,e,f)
             //Rank 6
             //    Current state: (a,b,c,d,e,f); State type: core; State ID: S6.1
-            //        Prev state: (a,b,c,d,f)
             //        Prev state: (a,b,c,d,e)
+            //        Prev state: (a,b,c,d,f)
             //        Next state: (a,b,c,d,e,f,g)
             //Rank 7
             //    Current state: (a,b,c,d,e,f,g); State type: core; State ID: S7.1
@@ -948,132 +934,132 @@ namespace TestApp
             //Rank 1
             //    Current state: (a); State type: core; State ID: S1.1
             //        Prev state: ()
-            //        Next state: (a,c)
             //        Next state: (a,b)
+            //        Next state: (a,c)
             //Rank 2
-            //    Current state: (a,c); State type: core; State ID: S2.1
-            //        Prev state: (a)
-            //        Next state: (a,b,c)
-            //        Next state: (a,c,d)
-            //    Current state: (a,b); State type: core; State ID: S2.2
+            //    Current state: (a,b); State type: core; State ID: S2.1
             //        Prev state: (a)
             //        Next state: (a,b,c)
             //        Next state: (a,b,d)
+            //    Current state: (a,c); State type: core; State ID: S2.2
+            //        Prev state: (a)
+            //        Next state: (a,b,c)
+            //        Next state: (a,c,d)
             //Rank 3
             //    Current state: (a,b,c); State type: core; State ID: S3.1
-            //        Prev state: (a,c)
             //        Prev state: (a,b)
-            //        Next state: (a,b,c,d)
-            //    Current state: (a,c,d); State type: expanded; State ID: S3.2
             //        Prev state: (a,c)
             //        Next state: (a,b,c,d)
-            //        Next state: (a,c,d,e)
-            //        Next state: (a,c,d,f)
-            //    Current state: (a,b,d); State type: expanded; State ID: S3.3
+            //    Current state: (a,b,d); State type: expanded; State ID: S3.2
             //        Prev state: (a,b)
             //        Next state: (a,b,c,d)
             //        Next state: (a,b,d,e)
             //        Next state: (a,b,d,f)
+            //    Current state: (a,c,d); State type: expanded; State ID: S3.3
+            //        Prev state: (a,c)
+            //        Next state: (a,b,c,d)
+            //        Next state: (a,c,d,e)
+            //        Next state: (a,c,d,f)
             //Rank 4
             //    Current state: (a,b,c,d); State type: core; State ID: S4.1
             //        Prev state: (a,b,c)
-            //        Prev state: (a,c,d)
             //        Prev state: (a,b,d)
-            //        Next state: (a,b,c,d,f)
-            //        Next state: (a,b,c,d,e)
-            //    Current state: (a,c,d,e); State type: expanded; State ID: S4.2
             //        Prev state: (a,c,d)
             //        Next state: (a,b,c,d,e)
-            //        Next state: (a,c,d,e,f)
-            //        Next state: (a,c,d,e,g)
-            //    Current state: (a,b,d,e); State type: expanded; State ID: S4.3
+            //        Next state: (a,b,c,d,f)
+            //    Current state: (a,b,d,e); State type: expanded; State ID: S4.2
             //        Prev state: (a,b,d)
             //        Next state: (a,b,c,d,e)
             //        Next state: (a,b,d,e,f)
             //        Next state: (a,b,d,e,g)
-            //    Current state: (a,c,d,f); State type: expanded; State ID: S4.4
+            //    Current state: (a,c,d,e); State type: expanded; State ID: S4.3
             //        Prev state: (a,c,d)
-            //        Next state: (a,b,c,d,f)
+            //        Next state: (a,b,c,d,e)
             //        Next state: (a,c,d,e,f)
-            //        Next state: (a,c,d,f,g)
-            //    Current state: (a,b,d,f); State type: expanded; State ID: S4.5
+            //        Next state: (a,c,d,e,g)
+            //    Current state: (a,b,d,f); State type: expanded; State ID: S4.4
             //        Prev state: (a,b,d)
             //        Next state: (a,b,c,d,f)
             //        Next state: (a,b,d,e,f)
             //        Next state: (a,b,d,f,g)
+            //    Current state: (a,c,d,f); State type: expanded; State ID: S4.5
+            //        Prev state: (a,c,d)
+            //        Next state: (a,b,c,d,f)
+            //        Next state: (a,c,d,e,f)
+            //        Next state: (a,c,d,f,g)
             //Rank 5
-            //    Current state: (a,b,c,d,f); State type: core; State ID: S5.1
+            //    Current state: (a,b,c,d,e); State type: core; State ID: S5.1
             //        Prev state: (a,b,c,d)
-            //        Prev state: (a,c,d,f)
-            //        Prev state: (a,b,d,f)
+            //        Prev state: (a,b,d,e)
+            //        Prev state: (a,c,d,e)
             //        Next state: (a,b,c,d,e,f)
-            //        Next state: (a,b,c,d,f,g)
-            //    Current state: (a,b,c,d,e); State type: core; State ID: S5.2
+            //        Next state: (a,b,c,d,e,g)
+            //    Current state: (a,b,c,d,f); State type: core; State ID: S5.2
             //        Prev state: (a,b,c,d)
-            //        Prev state: (a,c,d,e)
-            //        Prev state: (a,b,d,e)
-            //        Next state: (a,b,c,d,e,f)
-            //        Next state: (a,b,c,d,e,g)
-            //    Current state: (a,c,d,e,f); State type: expanded; State ID: S5.3
-            //        Prev state: (a,c,d,e)
+            //        Prev state: (a,b,d,f)
             //        Prev state: (a,c,d,f)
             //        Next state: (a,b,c,d,e,f)
-            //        Next state: (a,c,d,e,f,g)
-            //    Current state: (a,b,d,e,f); State type: expanded; State ID: S5.4
+            //        Next state: (a,b,c,d,f,g)
+            //    Current state: (a,b,d,e,f); State type: expanded; State ID: S5.3
             //        Prev state: (a,b,d,e)
             //        Prev state: (a,b,d,f)
             //        Next state: (a,b,c,d,e,f)
             //        Next state: (a,b,d,e,f,g)
-            //    Current state: (a,c,d,e,g); State type: expanded; State ID: S5.5
+            //    Current state: (a,c,d,e,f); State type: expanded; State ID: S5.4
             //        Prev state: (a,c,d,e)
-            //        Next state: (a,b,c,d,e,g)
+            //        Prev state: (a,c,d,f)
+            //        Next state: (a,b,c,d,e,f)
             //        Next state: (a,c,d,e,f,g)
-            //    Current state: (a,b,d,e,g); State type: expanded; State ID: S5.6
+            //    Current state: (a,b,d,e,g); State type: expanded; State ID: S5.5
             //        Prev state: (a,b,d,e)
             //        Next state: (a,b,c,d,e,g)
             //        Next state: (a,b,d,e,f,g)
-            //    Current state: (a,c,d,f,g); State type: expanded; State ID: S5.7
-            //        Prev state: (a,c,d,f)
-            //        Next state: (a,b,c,d,f,g)
+            //    Current state: (a,c,d,e,g); State type: expanded; State ID: S5.6
+            //        Prev state: (a,c,d,e)
+            //        Next state: (a,b,c,d,e,g)
             //        Next state: (a,c,d,e,f,g)
-            //    Current state: (a,b,d,f,g); State type: expanded; State ID: S5.8
+            //    Current state: (a,b,d,f,g); State type: expanded; State ID: S5.7
             //        Prev state: (a,b,d,f)
             //        Next state: (a,b,c,d,f,g)
             //        Next state: (a,b,d,e,f,g)
+            //    Current state: (a,c,d,f,g); State type: expanded; State ID: S5.8
+            //        Prev state: (a,c,d,f)
+            //        Next state: (a,b,c,d,f,g)
+            //        Next state: (a,c,d,e,f,g)
             //Rank 6
             //    Current state: (a,b,c,d,e,f); State type: core; State ID: S6.1
-            //        Prev state: (a,b,c,d,f)
             //        Prev state: (a,b,c,d,e)
-            //        Prev state: (a,c,d,e,f)
+            //        Prev state: (a,b,c,d,f)
             //        Prev state: (a,b,d,e,f)
-            //        Next state: (a,b,c,d,e,f,g)
-            //    Current state: (a,b,c,d,f,g); State type: expanded; State ID: S6.2
-            //        Prev state: (a,b,c,d,f)
-            //        Prev state: (a,c,d,f,g)
-            //        Prev state: (a,b,d,f,g)
-            //        Next state: (a,b,c,d,e,f,g)
-            //    Current state: (a,b,c,d,e,g); State type: expanded; State ID: S6.3
-            //        Prev state: (a,b,c,d,e)
-            //        Prev state: (a,c,d,e,g)
-            //        Prev state: (a,b,d,e,g)
-            //        Next state: (a,b,c,d,e,f,g)
-            //    Current state: (a,c,d,e,f,g); State type: expanded; State ID: S6.4
             //        Prev state: (a,c,d,e,f)
+            //        Next state: (a,b,c,d,e,f,g)
+            //    Current state: (a,b,c,d,e,g); State type: expanded; State ID: S6.2
+            //        Prev state: (a,b,c,d,e)
+            //        Prev state: (a,b,d,e,g)
             //        Prev state: (a,c,d,e,g)
+            //        Next state: (a,b,c,d,e,f,g)
+            //    Current state: (a,b,c,d,f,g); State type: expanded; State ID: S6.3
+            //        Prev state: (a,b,c,d,f)
+            //        Prev state: (a,b,d,f,g)
             //        Prev state: (a,c,d,f,g)
             //        Next state: (a,b,c,d,e,f,g)
-            //    Current state: (a,b,d,e,f,g); State type: expanded; State ID: S6.5
+            //    Current state: (a,b,d,e,f,g); State type: expanded; State ID: S6.4
             //        Prev state: (a,b,d,e,f)
             //        Prev state: (a,b,d,e,g)
             //        Prev state: (a,b,d,f,g)
+            //        Next state: (a,b,c,d,e,f,g)
+            //    Current state: (a,c,d,e,f,g); State type: expanded; State ID: S6.5
+            //        Prev state: (a,c,d,e,f)
+            //        Prev state: (a,c,d,e,g)
+            //        Prev state: (a,c,d,f,g)
             //        Next state: (a,b,c,d,e,f,g)
             //Rank 7
             //    Current state: (a,b,c,d,e,f,g); State type: core; State ID: S7.1
             //        Prev state: (a,b,c,d,e,f)
-            //        Prev state: (a,b,c,d,f,g)
             //        Prev state: (a,b,c,d,e,g)
-            //        Prev state: (a,c,d,e,f,g)
+            //        Prev state: (a,b,c,d,f,g)
             //        Prev state: (a,b,d,e,f,g)
+            //        Prev state: (a,c,d,e,f,g)
             //
             //======================================
             //The XML document:
@@ -1155,7 +1141,7 @@ namespace TestApp
             //      <KState xsd:id="S2.1" Type="core">
             //        <PCategories>
             //          <PCategory xsd:idref="a" />
-            //          <PCategory xsd:idref="c" />
+            //          <PCategory xsd:idref="b" />
             //        </PCategories>
             //        <PreviousStates>
             //          <KState xsd:idref="S1.1" />
@@ -1167,7 +1153,7 @@ namespace TestApp
             //      <KState xsd:id="S2.2" Type="core">
             //        <PCategories>
             //          <PCategory xsd:idref="a" />
-            //          <PCategory xsd:idref="b" />
+            //          <PCategory xsd:idref="c" />
             //        </PCategories>
             //        <PreviousStates>
             //          <KState xsd:idref="S1.1" />
@@ -1217,7 +1203,7 @@ namespace TestApp
             //          <PCategory xsd:idref="b" />
             //          <PCategory xsd:idref="c" />
             //          <PCategory xsd:idref="d" />
-            //          <PCategory xsd:idref="f" />
+            //          <PCategory xsd:idref="e" />
             //        </PCategories>
             //        <PreviousStates>
             //          <KState xsd:idref="S4.1" />
@@ -1232,7 +1218,7 @@ namespace TestApp
             //          <PCategory xsd:idref="b" />
             //          <PCategory xsd:idref="c" />
             //          <PCategory xsd:idref="d" />
-            //          <PCategory xsd:idref="e" />
+            //          <PCategory xsd:idref="f" />
             //        </PCategories>
             //        <PreviousStates>
             //          <KState xsd:idref="S4.1" />

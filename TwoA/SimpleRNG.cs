@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Namespace: HAT
+Namespace: TwoANS
 Filename: SimpleRNG.cs
 Description: 
     SimpleRNG is a simple random number generator based on George Marsaglia's MWC (multiply with carry) generator.
@@ -32,9 +32,11 @@ Description:
 //      - [SC] added 'Next' method
 // [2016.12.15]
 //      - [SC] added 'GetNormal' method that generates sample from one-sided distribution
+// [2017.12.19]
+//      - [SC] changed the namespace from TwoA to TwoANS
 //
 
-namespace TwoA
+namespace TwoANS
 {
     using System;
     using System.Collections.Generic;

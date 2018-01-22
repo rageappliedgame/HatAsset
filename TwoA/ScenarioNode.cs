@@ -1,7 +1,7 @@
 ﻿#region Header
 
 /*
-Copyright 2017 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
+Copyright 2018 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Namespace: TwoA
+Namespace: TwoANS
 Filename: ScenarioNode.cs
 Description:
     [TODO]
@@ -25,10 +25,15 @@ Description:
 // Change history:
 // [2017.03.16]
 //      - [SC] first created
+// [2017.11.03]
+//      - [SC] set the private access modified for the constructor with empty params
+//      - [SC] added constructor with three ID params
+// [2017.12.19]
+//      - [SC] changed the namespace from TwoA to TwoANS
 
 #endregion Header
 
-namespace TwoA 
+namespace TwoANS 
 {
     using System;
     using System.Collections.Generic;
@@ -157,7 +162,18 @@ namespace TwoA
         /// <summary>
         /// Constructor
         /// </summary>
-        public ScenarioNode() { 
+        private ScenarioNode() {}
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="adaptID">Adaptation ID</param>
+        /// <param name="gameID">Game ID</param>
+        /// <param name="scenarioID">Scenario ID</param>
+        public ScenarioNode(string adaptID, string gameID, string scenarioID) {
+            this.AdaptationID = adaptID;
+            this.GameID = gameID;
+            this.ScenarioID = scenarioID;
         }
 
         /// <summary>

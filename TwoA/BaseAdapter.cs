@@ -1,7 +1,7 @@
 ﻿#region Header
 
 /*
-Copyright 2017 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
+Copyright 2018 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Namespace: TwoA
+Namespace: TwoANS
 Filename: BaseAdapter.cs
 Description:
     [TODO]
@@ -25,12 +25,14 @@ Description:
 // Change history:
 // [2017.02.09]
 //      - [SC] first created
+// [2017.12.19]
+//      - [SC] changed the namespace from TwoA to TwoANS
+//      - [SC] changed the access modifier for BaseAdapter class to public from internal
+//      - [SC] changed the access modifiers for Type and Description properties to public from internal
 
 #endregion Header
 
-
-
-namespace TwoA 
+namespace TwoANS 
 {
     using System;
     using System.Collections.Generic;
@@ -39,27 +41,64 @@ namespace TwoA
 
     using AssetPackage;
 
-    internal abstract class BaseAdapter
+    /// <summary>
+    /// Base functionalities for the two modes of adaptation. Do not use this class.
+    /// </summary>
+    public abstract class BaseAdapter
     {
         #region Constant params
 
         // [TODO] move these constants to a more appropriate place
+        /// <summary>
+        /// Minimum value for the K factor.
+        /// </summary>
         public const double MIN_K_FCT = 0.0075d;
+        /// <summary>
+        /// Initial value for the K factor used for adaptation based on accuracy only.
+        /// </summary>
         public const double INITIAL_K_FCT = 0.0375d; // [SC] FIDE range for K 40 for new players until 30 completed games, or as long as their rating remains under 2300; K = 20, for players with a rating always under 2400; K = 10, for players with any published rating of at least 2400 and at least 30 games played in previous events. Thereafter it remains permanently at 10.
+        /// <summary>
+        /// Initial value for the difficulty or skill rating. Should not be equal to 0.
+        /// </summary>
         public const double INITIAL_RATING = 0.01d;
+        /// <summary>
+        /// Initial value for the rating uncertainty.
+        /// </summary>
         public const double INITIAL_UNCERTAINTY = 1.0d;
+        /// <summary>
+        /// Default time limit for finishing a scenario. Measured in milliseconds.
+        /// </summary>
         public const double DEFAULT_TIME_LIMIT = 90000; // [SC] in milliseconds
 
         #endregion Constant params
 
         #region Fields
 
+        /// <summary>
+        /// Reference to the instance of the encapsulating asset class.
+        /// </summary>
         protected TwoA asset; // [ASSET]
 
+        /// <summary>
+        /// This value is returned if the adaptation module was not given Type property.
+        /// </summary>
         public const string UNASSIGNED_TYPE = "UNASSIGNED"; // [SC] any adapter should have a Type unique among adapters oof TwoA
+        /// <summary>
+        /// An error code as double.
+        /// </summary>
         public const double ERROR_CODE = -9999;
+        /// <summary>
+        /// An error code as integer.
+        /// </summary>
+        public const int ERROR_CODE_INT = -9999;
 
+        /// <summary>
+        /// Lower limit of any probability value.
+        /// </summary>
         public const double DISTR_LOWER_LIMIT = 0.001;     // [SC] lower limit of any probability value
+        /// <summary>
+        /// Upper limit of any probability value.
+        /// </summary>
         public const double DISTR_UPPER_LIMIT = 0.999;     // [SC] upper limit of any probability value
 
         #endregion Fields 
@@ -81,10 +120,17 @@ namespace TwoA
         }
 
         /// <summary>
-        /// Getter for a code indicating error. 
+        /// Getter for a double code indicating error. 
         /// </summary>
         internal static double ErrorCode {
             get { return ERROR_CODE; }
+        }
+
+        /// <summary>
+        /// Getter for an integer code indicating error. 
+        /// </summary>
+        internal static int ErrorCodeInt {
+            get { return ERROR_CODE_INT; }
         }
 
         /// <summary>

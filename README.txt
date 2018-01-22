@@ -1,6 +1,6 @@
-TwoA (formerly HAT) asset implementation v1.2.
+TwoA (formerly HAT) asset implementation v1.2.5
 
-Authors: Enkhbold Nyamsuren, Wim van der Vegt
+Authors: Enkhbold Nyamsuren
 Organization: OUNL
 Task: T3.4a
 For any questions contact Enkhbold Nyamsuren via Enkhbold.Nyamsuren [AT] ou [DOT] nl
@@ -25,7 +25,13 @@ Refer to the software design document (https://rage.ou.nl/filedepot?fid=501) for
 Refer to the asset use case description (https://rage.ou.nl/filedepot?fid=502) for HAT asset application notes.
 Refer to the manual (https://rage.ou.nl/filedepot?fid=503) on the accompanying widget for data management and analysis/visualization.
 
-Summary of most important changes from the previous version of the TwoA asset:
+Summary of most important changes in the version 1.2.5 of the TwoA asset:
+- Added a calibration phase: during the first 30 games, changes in player and/or scenario ratings are higher due to bigger K factor (this feature is not validated;  use with caution)
+- Changed the name space for the TwoA asset to "TwoANS"
+- Added an empty constructor for the TwoA class
+- Removed empty constructors from the PlayerNode and ScenarioNode classes
+
+Summary of most important changes in the version 1.2 of the TwoA asset:
 - Added a second adaptation module that requires only player accuracy. Accuracy can be any value between 0 and 1.
 - Remove dependency on external files. Now it is assumed that the game developer will add scenario and game data programatically instead of storing them in an xml file.
 - Extended API for greater flexibitility of managing player and scenario data.

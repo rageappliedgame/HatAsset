@@ -1,7 +1,7 @@
 ﻿#region Header
 
 /*
-Copyright 2016 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
+Copyright 2018 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Namespace: TwoA
+Namespace: TwoANS
 Filename: XMLFactory.cs
 Description:
     A custom serialization library that transforms KStructure object into an XML format using XML.Linq library.
@@ -24,10 +24,12 @@ Description:
 // Change history
 // [2016.10.27]
 //      - [SC] First created
+// [2017.12.19]
+//      - [SC] changed the namespace from TwoA to TwoANS
 
 #endregion Header
 
-namespace TwoA
+namespace TwoANS
 {
     using System;
     using System.Collections.Generic;

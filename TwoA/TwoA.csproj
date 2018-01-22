@@ -7,7 +7,7 @@
     <ProjectGuid>{98F44FAD-87FB-4666-888F-32FDC5EDC6B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TwoA</RootNamespace>
+    <RootNamespace>TwoANS</RootNamespace>
     <AssemblyName>TwoA</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

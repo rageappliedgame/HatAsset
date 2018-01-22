@@ -1,7 +1,7 @@
 ﻿#region Header
 
 /*
-Copyright 2015 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/), Wim van der Vegt
+Copyright 2018 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/), Wim van der Vegt
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-Namespace: TwoA
+Namespace: TwoANS
 Filename: TwoA.cs
 */
 
@@ -101,17 +101,20 @@ Filename: TwoA.cs
 //      - [SC] added 'GetKDown', 'SetKDown', 'SetDefaultKDown' methods
 //      - [SC] added 'GetExpectScoreMagnifier', 'SetExpectScoreMagnifier', 'SetDefaultExpectScoreMagnifier' methods
 //      - [SC] added 'GetMagnifierStepSize', 'SetMagnifierStepSize', 'SetDefaultMagnifierStepSize' methods
-//
+// [2017.12.19]
+//      - [SC] changed the namespace from TwoA to TwoANS
+//      - [SC] added a constructor with empty parameters
 
 // TODO:
 //      - InitSettings need total rewriting
 //      - Different adaptation algorithms may need different XML nodes; need a XML reading method independent of XML structure
 //      - Validate XML files against schema
+//      - Gameplay class
 
 #endregion Header
 
-namespace TwoA
-{ 
+namespace TwoANS
+{
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -125,7 +128,7 @@ namespace TwoA
     /// <summary>
     /// A TwoA asset.
     /// </summary>
-    public class TwoA : BaseAsset 
+    public class TwoA : BaseAsset
     {
         #region Constants
 
@@ -168,17 +171,20 @@ namespace TwoA
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the TwoA.TwoA class.
+        /// Initializes a new instance of the TwoANS.TwoA class.
+        /// </summary>
+        public TwoA() : base() {
+            InitSettings();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the TwoANS.TwoA class.
         /// </summary>
         ///
         /// <param name="bridge"> The bridge. </param>
         public TwoA(IBridge bridge) : base(bridge) {
             InitSettings();
         }
-
-        #endregion Constructors
-
-        #region Methods
 
         /// <summary>
         /// Initialises the settings.
@@ -199,6 +205,29 @@ namespace TwoA
             // [SC] create the TwoA-Elo adapter
             this.adapterElo = new DifficultyAdapterElo(this);
         }
+
+        #endregion Constructors
+
+        #region Methods
+
+        #region Misc methods
+
+        /// <summary>
+        /// Returns a 2D array with descriptions of available adapters.
+        /// The first column contains class name.
+        /// The second column contains adapter IDs. 
+        /// The third column contains adapter descriptions.
+        /// </summary>
+        /// 
+        /// <returns>2D array of strings</returns>
+        public string[,] AvailableAdapters() {
+            return new string[,] { 
+                {adapter.GetType().Name, DifficultyAdapter.Type, DifficultyAdapter.Description }
+                , {adapterElo.GetType().Name, DifficultyAdapterElo.Type, DifficultyAdapterElo.Description}
+            };
+        }
+
+        #endregion Misc methods
 
         #region Methods for target scenario retrievals
 
@@ -296,10 +325,10 @@ namespace TwoA
                 return null;
             }
 
-            if (playerNode.AdaptationID.Equals(adapter.Type)) {
+            if (playerNode.AdaptationID.Equals(DifficultyAdapter.Type)) {
                 return adapter.TargetScenario(playerNode, scenarioList);
             }
-            else if (playerNode.AdaptationID.Equals(adapterElo.Type)) {
+            else if (playerNode.AdaptationID.Equals(DifficultyAdapterElo.Type)) {
                 return adapterElo.TargetScenario(playerNode, scenarioList);
             }
             else {
@@ -324,10 +353,10 @@ namespace TwoA
                 return 0;
             }
 
-            if (adaptID.Equals(adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return adapter.TargetDifficultyRating(playerRating);
             }
-            else if (adaptID.Equals(adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return adapterElo.TargetDifficultyRating(playerRating);
             }
             else {
@@ -420,10 +449,10 @@ namespace TwoA
                 return false;
             }
 
-            if (playerNode.AdaptationID.Equals(adapter.Type)) {
+            if (playerNode.AdaptationID.Equals(DifficultyAdapter.Type)) {
                 return adapter.UpdateRatings(playerNode, scenarioNode, rt, correctAnswer, updateScenarioRating, customKfct, customKfct);
             }
-            else if (playerNode.AdaptationID.Equals(adapterElo.Type)) {
+            else if (playerNode.AdaptationID.Equals(DifficultyAdapterElo.Type)) {
                 return adapterElo.UpdateRatings(playerNode, scenarioNode, rt, correctAnswer, updateScenarioRating, customKfct, customKfct);
             }
             else {
@@ -465,6 +494,8 @@ namespace TwoA
 
         #endregion Methods for updating ratings
 
+        #region Methods for calculating scores
+
         /// <summary>
         /// Calculates a normalized score based on player's performance defined by response time and accuracy.
         /// </summary>
@@ -499,10 +530,10 @@ namespace TwoA
         /// <param name="itemMaxDuration">  Max allowed time in millisecond given to player to solve the problem.</param>
         /// <returns>Expected score or error code.</returns>
         public double CalculateExpectedScore(string adaptID, double playerRating, double scenarioRating, double itemMaxDuration) {
-            if (adaptID.Equals(adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return adapter.calcExpectedScore(playerRating, scenarioRating, itemMaxDuration);
             }
-            else if (adaptID.Equals(adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return adapterElo.calcExpectedScore(playerRating, scenarioRating);
             }
             else {
@@ -512,20 +543,7 @@ namespace TwoA
             }
         }
 
-        /// <summary>
-        /// Returns a 2D array with descriptions of available adapters.
-        /// The first column contains class name.
-        /// The second column contains adapter IDs. 
-        /// The third column contains adapter descriptions.
-        /// </summary>
-        /// 
-        /// <returns>2D array of strings</returns>
-        public string[,] AvailableAdapters() { 
-            return new string[,] { 
-                {adapter.GetType().Name, adapter.Type, adapter.Description }
-                , {adapterElo.GetType().Name, adapterElo.Type, adapterElo.Description}
-            };
-        }
+        #endregion Methods for calculating scores
 
         //////////////////////////////////////////////////////////////////////////////////////
         ////// START: methods for setting adapter parameters
@@ -539,11 +557,11 @@ namespace TwoA
         /// <param name="adaptID">Adapter ID.</param>
         /// <returns>An array with four elements.</returns>
         public double[] GetTargetDistribution(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return new double[] { this.adapter.TargetDistrMean, this.adapter.TargetDistrSD
                                     , this.adapter.TargetLowerLimit, this.adapter.TargetUpperLimit };
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return new double[] { this.adapterElo.TargetDistrMean, this.adapterElo.TargetDistrSD
                                     , this.adapterElo.TargetLowerLimit, this.adapterElo.TargetUpperLimit };
             }
@@ -564,12 +582,12 @@ namespace TwoA
         /// <param name="lowerLimit">   Distribution lower limit.</param>
         /// <param name="upperLimit">   Distribution upper limit.</param>
         public void SetTargetDistribution(string adaptID, double mean, double sd, double lowerLimit, double upperLimit) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setTargetDistribution(mean, sd, lowerLimit, upperLimit);
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setTargetDistribution(mean, sd, lowerLimit, upperLimit);
-            } 
+            }
             else {
                 Log(AssetPackage.Severity.Error
                     , String.Format("In 'TwoA.SetTargetDistribution' method: adapter ID '{0}' is not recognized.", adaptID));
@@ -581,10 +599,10 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">  Adapter ID.</param>
         public void SetDefaultTargetDistribution(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setDefaultTargetDistribution();
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultTargetDistribution();
             }
             else {
@@ -603,10 +621,10 @@ namespace TwoA
         /// <param name="adaptID">Adapter ID></param>
         /// <returns>Multiplier value, or 0 if the adapter is not found.</returns>
         public double GetFiSDMultiplier(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return this.adapter.FiSDMultiplier;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.FiSDMultiplier;
             }
             else {
@@ -623,10 +641,10 @@ namespace TwoA
         /// <param name="adaptID">      Adapter ID.</param>
         /// <param name="multiplier">   The value of the multiplier.</param>
         public void SetFiSDMultiplier(string adaptID, double multiplier) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.FiSDMultiplier = multiplier;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.FiSDMultiplier = multiplier;
             }
             else {
@@ -640,10 +658,10 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID.</param>
         public void SetDefaultFiSDMultiplier(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setDefaultFiSDMultiplier();
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultFiSDMultiplier();
             }
             else {
@@ -662,10 +680,10 @@ namespace TwoA
         /// <param name="adaptID"> Adapter ID.</param>
         /// <returns>The number of days as double value, or 0 if adapter is not found</returns>
         public double GetMaxDelay(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return this.adapter.MaxDelay;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.MaxDelay;
             }
             else {
@@ -682,10 +700,10 @@ namespace TwoA
         /// <param name="adaptID">  Adapter ID.</param>
         /// <param name="maxDelay"> Maximum delay in days.</param>
         public void SetMaxDelay(string adaptID, double maxDelay) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.MaxDelay = maxDelay;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.MaxDelay = maxDelay;
             }
             else {
@@ -699,10 +717,10 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID.</param>
         public void SetDefaultMaxDelay(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setDefaultMaxDelay();
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultMaxDelay();
             }
             else {
@@ -717,10 +735,10 @@ namespace TwoA
         /// <param name="adaptID">Adapter ID</param>
         /// <returns>The number of play counts as double value.</returns>
         public double GetMaxPlay(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return this.adapter.MaxPlay;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.MaxPlay;
             }
             else {
@@ -737,10 +755,10 @@ namespace TwoA
         /// <param name="adaptID">  Adapter ID</param>
         /// <param name="maxPlay">  Max play count</param>
         public void SetMaxPlay(string adaptID, double maxPlay) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.MaxPlay = maxPlay;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.MaxPlay = maxPlay;
             }
             else {
@@ -754,10 +772,10 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID</param>
         public void SetDefaultMaxPlay(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setDefaultMaxPlay();
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultMaxPlay();
             }
             else {
@@ -776,10 +794,10 @@ namespace TwoA
         /// <param name="adaptID">Adapter ID</param>
         /// <returns>K constant as double value</returns>
         public double GetKConst(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return this.adapter.KConst;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.KConst;
             }
             else {
@@ -796,10 +814,10 @@ namespace TwoA
         /// <param name="adaptID">  Adapter ID</param>
         /// <param name="kConst">   The value of the K constant</param>
         public void SetKConst(string adaptID, double kConst) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.KConst = kConst;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.KConst = kConst;
             }
             else {
@@ -813,10 +831,10 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID</param>
         public void SetDefaultKConst(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setDefaultKConst();
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultKConst();
             }
             else {
@@ -831,10 +849,10 @@ namespace TwoA
         /// <param name="adaptID">Adapter ID</param>
         /// <returns>Upward uncertainty weight as double value</returns>
         public double GetKUp(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return this.adapter.KUp;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.KUp;
             }
             else {
@@ -851,10 +869,10 @@ namespace TwoA
         /// <param name="adaptID">  Adapter ID</param>
         /// <param name="kUp">      Weight value</param>
         public void SetKUp(string adaptID, double kUp) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.KUp = kUp;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.KUp = kUp;
             }
             else {
@@ -868,10 +886,10 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID</param>
         public void SetDefaultKUp(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setDefaultKUp();
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultKUp();
             }
             else {
@@ -886,10 +904,10 @@ namespace TwoA
         /// <param name="adaptID">  Adapter ID</param>
         /// <returns>Weight value as double number</returns>
         public double GetKDown(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 return this.adapter.KDown;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.KDown;
             }
             else {
@@ -906,10 +924,10 @@ namespace TwoA
         /// <param name="adaptID">  Adapter ID</param>
         /// <param name="kDown">    Weight value</param>
         public void SetKDown(string adaptID, double kDown) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.KDown = kDown;
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.KDown = kDown;
             }
             else {
@@ -923,10 +941,10 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID</param>
         public void SetDefaultKDown(string adaptID) {
-            if (adaptID.Equals(this.adapter.Type)) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
                 this.adapter.setDefaultKDown();
             }
-            else if (adaptID.Equals(this.adapterElo.Type)) {
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultKDown();
             }
             else {
@@ -937,6 +955,300 @@ namespace TwoA
 
         #endregion Methods for K factor
 
+        #region Methods for the calibration params
+
+        /// <summary>
+        /// Get the player calibration length
+        /// </summary>
+        /// <param name="adaptID">Adapter ID</param>
+        /// <returns>Calibration length as int</returns>
+        public int GetPlayerCalLength(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                return this.adapter.PlayerCalLength;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                return this.adapterElo.PlayerCalLength;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.GetPlayerCalLength' method: adapter ID '{0}' is not recognized. Returning error code '{1}'."
+                    , adaptID, BaseAdapter.ErrorCode));
+                return BaseAdapter.ErrorCodeInt;
+            }
+        }
+
+        /// <summary>
+        /// Set the player calibration length
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        /// <param name="calLength">    The value of the calibration length</param>
+        public void SetPlayerCalLength(string adaptID, int calLength) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.PlayerCalLength = calLength;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.PlayerCalLength = calLength;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetPlayerCalLength' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Set the default calibration length for a player
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        public void SetDefaultPlayerCalLength(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.setDefaultPlayerCalLength();
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.setDefaultPlayerCalLength();
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetDefaultPlayerCalLength' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Get the scenario calibration length
+        /// </summary>
+        /// <param name="adaptID">Adapter ID</param>
+        /// <returns>Calibration length as int</returns>
+        public int GetScenarioCalLength(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                return this.adapter.ScenarioCalLength;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                return this.adapterElo.ScenarioCalLength;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.GetScenarioCalLength' method: adapter ID '{0}' is not recognized. Returning error code '{1}'."
+                    , adaptID, BaseAdapter.ErrorCode));
+                return BaseAdapter.ErrorCodeInt;
+            }
+        }
+
+        /// <summary>
+        /// Set the scenario calibration length
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        /// <param name="calLength">    The value of the calibration length</param>
+        public void SetScenarioCalLength(string adaptID, int calLength) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.ScenarioCalLength = calLength;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.ScenarioCalLength = calLength;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetScenarioCalLength' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Set the default calibration length for a scenario
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        public void SetDefaultScenarioCalLength(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.setDefaultScenarioCalLength();
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.setDefaultScenarioCalLength();
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetDefaultScenarioCalLength' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Sets the scenario and player calibration lengths to the same value
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        /// <param name="calLength">    The value of the calibration length</param>
+        public void SetCalLength(string adaptID, int calLength) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.CalLength = calLength;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.CalLength = calLength;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetCalLength' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Sets scenario and player calibration lengths to its default values.
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        public void SetDefaultCalLength(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.setDefaultCalLength();
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.setDefaultCalLength();
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetDefaultCalLength' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Get the player calibration K factor
+        /// </summary>
+        /// <param name="adaptID">Adapter ID</param>
+        /// <returns>K factor as double</returns>
+        public double GetPlayerCalK(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                return this.adapter.PlayerCalK;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                return this.adapterElo.PlayerCalK;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.GetPlayerCalK' method: adapter ID '{0}' is not recognized. Returning error code '{1}'."
+                    , adaptID, BaseAdapter.ErrorCode));
+                return BaseAdapter.ErrorCode;
+            }
+        }
+
+        /// <summary>
+        /// Set the player calibration K factor
+        /// </summary>
+        /// <param name="adaptID">  Adapter ID</param>
+        /// <param name="calK">     The value of the calibration K factor</param>
+        public void SetPlayerCalK(string adaptID, double calK) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.PlayerCalK = calK;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.PlayerCalK = calK;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetPlayerCalK' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Set the default calibration K factor for a player
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        public void SetDefaultPlayerCalK(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.setDefaultPlayerCalK();
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.setDefaultPlayerCalK();
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetDefaultPlayerCalK' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Get the scenario calibration K factor
+        /// </summary>
+        /// <param name="adaptID">Adapter ID</param>
+        /// <returns>K factor as double</returns>
+        public double GetScenarioCalK(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                return this.adapter.ScenarioCalK;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                return this.adapterElo.ScenarioCalK;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.GetScenarioCalK' method: adapter ID '{0}' is not recognized. Returning error code '{1}'."
+                    , adaptID, BaseAdapter.ErrorCode));
+                return BaseAdapter.ErrorCode;
+            }
+        }
+
+        /// <summary>
+        /// Set the scenario calibration K factor
+        /// </summary>
+        /// <param name="adaptID">  Adapter ID</param>
+        /// <param name="calK">     The value of the calibration K factor</param>
+        public void SetScenarioCalK(string adaptID, double calK) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.ScenarioCalK = calK;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.ScenarioCalK = calK;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetScenarioCalK' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Set the default calibration K factor for a scenario
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        public void SetDefaultScenarioCalK(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.setDefaultScenarioCalK();
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.setDefaultScenarioCalK();
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetDefaultScenarioCalK' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Set the player and scenario calibration K factors
+        /// </summary>
+        /// <param name="adaptID">  Adapter ID</param>
+        /// <param name="calK">     The value of the calibration K factor</param>
+        public void SetCalK(string adaptID, double calK) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.CalK = calK;
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.CalK = calK;
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetCalK' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        /// <summary>
+        /// Set the default calibration K factor for player and scenario
+        /// </summary>
+        /// <param name="adaptID">      Adapter ID</param>
+        public void SetDefaultCalK(string adaptID) {
+            if (adaptID.Equals(DifficultyAdapter.Type)) {
+                this.adapter.setDefaultCalK();
+            }
+            else if (adaptID.Equals(DifficultyAdapterElo.Type)) {
+                this.adapterElo.setDefaultCalK();
+            }
+            else {
+                Log(AssetPackage.Severity.Error
+                    , String.Format("In 'TwoA.SetDefaultCalK' method: adapter ID '{0}' is not recognized.", adaptID));
+            }
+        }
+
+        #endregion Methods for the calibration params
+
         #region Methods for Elo-based expected score params
 
         /// <summary>
@@ -945,7 +1257,7 @@ namespace TwoA
         /// <param name="adaptID">Adapter ID</param>
         /// <returns>Magnifier as double value</returns>
         public double GetExpectScoreMagnifier(string adaptID) {
-            if (adaptID.Equals(this.adapterElo.Type)) {
+            if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.ExpectScoreMagnifier;
             }
             else {
@@ -962,7 +1274,7 @@ namespace TwoA
         /// <param name="adaptID">              Adapter ID</param>
         /// <param name="expectScoreMagnifier"> The value for the magnifier</param>
         public void SetExpectScoreMagnifier(string adaptID, double expectScoreMagnifier) {
-            if (adaptID.Equals(this.adapterElo.Type)) {
+            if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.ExpectScoreMagnifier = expectScoreMagnifier;
             }
             else {
@@ -976,7 +1288,7 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID</param>
         public void SetDefaultExpectScoreMagnifier(string adaptID) {
-            if (adaptID.Equals(this.adapterElo.Type)) {
+            if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultExpectScoreMagnifier();
             }
             else {
@@ -991,7 +1303,7 @@ namespace TwoA
         /// <param name="adaptID">Adapter ID</param>
         /// <returns>Magnifier step size as double value</returns>
         public double GetMagnifierStepSize(string adaptID) {
-            if (adaptID.Equals(this.adapterElo.Type)) {
+            if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 return this.adapterElo.MagnifierStepSize;
             }
             else {
@@ -1008,7 +1320,7 @@ namespace TwoA
         /// <param name="adaptID">              Adapter ID</param>
         /// <param name="magnifierStepSize">    The value of the magnifier step size</param>
         public void SetMagnifierStepSize(string adaptID, double magnifierStepSize) {
-            if (adaptID.Equals(this.adapterElo.Type)) {
+            if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.MagnifierStepSize = magnifierStepSize;
             }
             else {
@@ -1022,7 +1334,7 @@ namespace TwoA
         /// </summary>
         /// <param name="adaptID">Adapter ID</param>
         public void SetDefaultMagnifierStepSize(string adaptID) {
-            if (adaptID.Equals(this.adapterElo.Type)) {
+            if (adaptID.Equals(DifficultyAdapterElo.Type)) {
                 this.adapterElo.setDefaultMagnifierStepSize();
             }
             else {
@@ -1370,7 +1682,7 @@ namespace TwoA
                 Log(Severity.Error, "In TwoA.AddPlayer: Cannot add player. Null or empty string for last played date.");
                 return false;
             }
-            
+
             this.players.Add(playerNode);
 
             return true;
@@ -1390,16 +1702,16 @@ namespace TwoA
         /// <returns>True if new player node was added and false otherwise.</returns>
         public bool AddPlayer(string adaptID, string gameID, string playerID
                             , double rating, double playCount, double kFactor, double uncertainty, DateTime lastPlayed) {
-            return this.AddPlayer(new PlayerNode { 
-                    AdaptationID = adaptID
-                    , GameID = gameID
-                    , PlayerID = playerID
-                    , Rating = rating
-                    , PlayCount = playCount
-                    , KFactor = kFactor
-                    , Uncertainty = uncertainty
-                    , LastPlayed = lastPlayed
-                }
+            return this.AddPlayer(new PlayerNode(
+                    adaptID
+                    , gameID
+                    , playerID
+                    , rating
+                    , playCount
+                    , kFactor
+                    , uncertainty
+                    , lastPlayed
+                )
             );
         }
 
@@ -1438,7 +1750,7 @@ namespace TwoA
                 return null;
             }
 
-            return players.Find(p => p.AdaptationID.Equals(adaptID) 
+            return players.Find(p => p.AdaptationID.Equals(adaptID)
                                 && p.GameID.Equals(gameID)
                                 && p.PlayerID.Equals(playerID));
         }
@@ -1778,7 +2090,7 @@ namespace TwoA
                                                                 , scenarioID, adaptID, gameID));
                 return false;
             }
-            
+
             scenario.Uncertainty = uncertainty;
             return true;
         }
@@ -1919,17 +2231,17 @@ namespace TwoA
         /// <returns>True if new scenario node was added and false otherwise.</returns>
         public bool AddScenario(string adaptID, string gameID, string scenarioID
                             , double rating, double playCount, double kFactor, double uncertainty, DateTime lastPlayed, double timeLimit) {
-            return this.AddScenario(new ScenarioNode {
-                    AdaptationID = adaptID,
-                    GameID = gameID,
-                    ScenarioID = scenarioID,
-                    Rating = rating,
-                    PlayCount = playCount,
-                    KFactor = kFactor,
-                    Uncertainty = uncertainty,
-                    LastPlayed = lastPlayed,
-                    TimeLimit = timeLimit
-                }
+            return this.AddScenario(new ScenarioNode(
+                    adaptID,
+                    gameID,
+                    scenarioID,
+                    rating,
+                    playCount,
+                    kFactor,
+                    uncertainty,
+                    lastPlayed,
+                    timeLimit
+                )
             );
         }
 
