@@ -21,10 +21,6 @@ The 'TestApp' project is not necessary and can be safely removed.
 
 The TwoA asset dependent on the AssetManager package. You can download it from https://github.com/rageappliedgame/AssetManager
 
-Refer to the software design document (https://rage.ou.nl/filedepot?fid=501) for more implementation and integration details.
-Refer to the asset use case description (https://rage.ou.nl/filedepot?fid=502) for HAT asset application notes.
-Refer to the manual (https://rage.ou.nl/filedepot?fid=503) on the accompanying widget for data management and analysis/visualization.
-
 Summary of most important changes in the version 1.2.5 of the TwoA asset:
 - Added a calibration phase: during the first 30 games, changes in player and/or scenario ratings are higher due to bigger K factor (this feature is not validated;  use with caution)
 - Changed the name space for the TwoA asset to "TwoANS"
