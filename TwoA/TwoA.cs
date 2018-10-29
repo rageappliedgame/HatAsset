@@ -1,4 +1,4 @@
-﻿#region Header
+#region Header
 
 /*
 Copyright 2018 Enkhbold Nyamsuren (http://www.bcogs.net , http://www.bcogs.info/), Wim van der Vegt
@@ -122,8 +122,11 @@ namespace TwoANS
     using System.Reflection;
     using System.Text;
     using System.Xml.Serialization;
+    using System.Xml;
+
 
     using AssetPackage;
+    using AssetManagerPackage;
 
     /// <summary>
     /// A TwoA asset.
@@ -166,6 +169,55 @@ namespace TwoANS
         /// </summary>
         public List<Gameplay> gameplays;
 
+        /// <summary>
+        /// Data storage interface for loading and saving data.
+        /// </summary>
+        private IDataStorage ds;
+
+        /// <summary>
+        /// The players data file.
+        /// </summary>
+        public readonly string PlayersDataFile = $"AllPlayers.xml";
+
+        /// <summary>
+        /// The scenarios data file.
+        /// </summary>
+        public readonly string ScenariosDataFile = $"AllScenarios.xml";
+
+        /// <summary>
+        /// The game plays data file.
+        /// </summary>
+        public readonly string GamePlaysDataFile = $"GamePlays.xml";
+
+        /// <summary>
+        /// The player data serializer.
+        /// </summary>
+        private XmlSerializer PlayerDataSerializer = new XmlSerializer(typeof(List<PlayerNode>));
+
+        /// <summary>
+        /// The scenario data serializer.
+        /// </summary>
+        private XmlSerializer ScenarioDataSerializer = new XmlSerializer(typeof(List<ScenarioNode>));
+
+        /// <summary>
+        /// The game play data serializer.
+        /// </summary>
+        private XmlSerializer GamePlayDataSerializer = new XmlSerializer(typeof(List<Gameplay>));
+
+        /// <summary>
+        /// The serializer namespace.
+        /// </summary>
+        private XmlSerializerNamespaces SerializerNamespace = new XmlSerializerNamespaces(
+            new XmlQualifiedName[] { new XmlQualifiedName("", "") });
+
+        /// <summary>
+        /// The serializer settings.
+        /// </summary>
+        private XmlWriterSettings SerializerSettings = new XmlWriterSettings() {
+            OmitXmlDeclaration = true,
+            Indent = true,
+        };
+
         #endregion Fields
 
         #region Constructors
@@ -190,20 +242,132 @@ namespace TwoANS
         /// Initialises the settings.
         /// </summary>
         private void InitSettings() {
-            // [SC] list of available players
-            this.players = new List<PlayerNode>();
 
-            // [SC] list of available scenarios
-            this.scenarios = new List<ScenarioNode>();
+            // [SC] init data storage
+            this.ds = this.getInterface<IDataStorage>();
 
-            // [SC] list of gameplays
-            this.gameplays = new List<Gameplay>();
+            this.LoadPlayerData();
+
+            this.LoadScenarioData();
+
+            this.LoadGamePlayData();
 
             // [SC] create the TwoA adapter
             this.adapter = new DifficultyAdapter(this);
 
             // [SC] create the TwoA-Elo adapter
             this.adapterElo = new DifficultyAdapterElo(this);
+        }
+
+        /// <summary>
+        /// Loads player data or inits an empty list
+        /// </summary>
+        public void LoadPlayerData() {
+            // [SC] list of available players
+            this.players = new List<PlayerNode>();
+
+            if (this.ds != null && this.ds.Exists(this.PlayersDataFile)) {
+                String playerDataXmlStr = this.ds.Load(this.PlayersDataFile);
+
+                if (!String.IsNullOrEmpty(playerDataXmlStr)) {
+                    using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(playerDataXmlStr))) {
+                        foreach (PlayerNode node in (List<PlayerNode>)PlayerDataSerializer.Deserialize(ms)) {
+                            this.AddPlayer(node);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads scenario data or inits an empty list
+        /// </summary>
+        public void LoadScenarioData() {
+            // [SC] list of available scenarios
+            this.scenarios = new List<ScenarioNode>();
+
+            if (this.ds != null && this.ds.Exists(this.ScenariosDataFile)) {
+                String scenarioDataXmlStr = this.ds.Load(this.ScenariosDataFile);
+
+                if (!String.IsNullOrEmpty(scenarioDataXmlStr)) {
+                    using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(scenarioDataXmlStr))) {
+                        foreach (ScenarioNode node in (List<ScenarioNode>)ScenarioDataSerializer.Deserialize(ms)) {
+                            this.AddScenario(node);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads gameplay data or inits an empty list
+        /// </summary>
+        public void LoadGamePlayData() {
+            // [SC] list of gameplays
+            this.gameplays = new List<Gameplay>();
+
+            if (this.ds != null && this.ds.Exists(this.GamePlaysDataFile)) {
+                String gameplayDataXmlStr = this.ds.Load(this.GamePlaysDataFile);
+
+                if (String.IsNullOrEmpty(gameplayDataXmlStr)) {
+                    using (MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(gameplayDataXmlStr))) {
+                        foreach (Gameplay node in (List<Gameplay>)GamePlayDataSerializer.Deserialize(ms)) {
+                            this.gameplays.Add(node);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves the player data.
+        /// </summary>
+        public void SavePlayerData() {
+            if (this.ds != null) {
+                using (StringWriterUtf8 textWriter = new StringWriterUtf8()) {
+                    using (XmlWriter tw = XmlWriter.Create(textWriter, SerializerSettings)) {
+                        PlayerDataSerializer.Serialize(tw, this.players, SerializerNamespace);
+                    }
+
+                    textWriter.Flush();
+
+                    this.ds.Save(PlayersDataFile, textWriter.ToString());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves the scenario data.
+        /// </summary>
+        public void SaveScenarioData() {
+            if (this.ds != null) {
+                using (StringWriterUtf8 textWriter = new StringWriterUtf8()) {
+                    using (XmlWriter tw = XmlWriter.Create(textWriter, SerializerSettings)) {
+                        ScenarioDataSerializer.Serialize(tw, this.scenarios, SerializerNamespace);
+                    }
+
+                    textWriter.Flush();
+
+                    this.ds.Save(ScenariosDataFile, textWriter.ToString());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Saves the game play data.
+        /// </summary>
+        public void SaveGamePlayData() {
+            if (this.ds != null) {
+                using (StringWriterUtf8 textWriter = new StringWriterUtf8()) {
+                    using (XmlWriter tw = XmlWriter.Create(textWriter, SerializerSettings)) {
+                        GamePlayDataSerializer.Serialize(tw, this.gameplays, SerializerNamespace);
+                    }
+
+                    textWriter.Flush();
+
+                    this.ds.Save(GamePlaysDataFile, textWriter.ToString());
+                }
+            }
         }
 
         #endregion Constructors
