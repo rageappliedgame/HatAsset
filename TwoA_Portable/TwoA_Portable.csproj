@@ -84,14 +84,14 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="RageAssetManager">
-      <HintPath>..\..\..\..\RageAssetRepos_2017.10.27\AssetManager\RageAssetManager_Portable\bin\Debug\RageAssetManager.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="..\TwoA\Resources\TwoA.VersionAndDependencies.xml">
       <Link>Resources\TwoA.VersionAndDependencies.xml</Link>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="RageAssetManager_Portable">
+      <HintPath>..\..\AssetManager\RageAssetManager_Portable\bin\Debug\RageAssetManager_Portable.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

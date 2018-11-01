@@ -236,6 +236,8 @@ namespace TwoANS
         /// <param name="bridge"> The bridge. </param>
         public TwoA(IBridge bridge) : base(bridge) {
             InitSettings();
+
+            Log(Severity.Verbose, "TwoA(bridge)");
         }
 
         /// <summary>
@@ -246,11 +248,14 @@ namespace TwoANS
             // [SC] init data storage
             this.ds = this.getInterface<IDataStorage>();
 
-            this.LoadPlayerData();
+            // [VEG]
+            this.players = new List<PlayerNode>();
+            this.scenarios = new List<ScenarioNode>();
+            this.gameplays = new List<Gameplay>();
 
-            this.LoadScenarioData();
-
-            this.LoadGamePlayData();
+            //this.LoadPlayerData();
+            //this.LoadScenarioData();
+            //this.LoadGamePlayData();
 
             // [SC] create the TwoA adapter
             this.adapter = new DifficultyAdapter(this);

@@ -3,3 +3,12 @@
 ################################################################################
 
 /.vs/HatAsset/v14
+/.vs
+/TestApp/bin/Debug
+/TestApp/obj/Debug
+/TwoA/bin/Debug
+/TwoA/obj/Debug
+/TwoA_Portable/bin/Debug
+/TwoA_Portable/obj/Debug
+/TwoA/TwoA.nuspec
+/TwoA/TwoA.1.0.0.nupkg
